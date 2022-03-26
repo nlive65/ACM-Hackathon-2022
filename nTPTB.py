@@ -3,10 +3,7 @@ import json
 import os
 import nltk
 from lib2to3.pgen2.tokenize import tokenize
-import translators as translate
-import re
-
-
+import translators as ts
 
 if os.path.exists(os.getcwd() + "/config.json"):
     with open(".\config.json") as f:
@@ -16,8 +13,7 @@ else:
     with open(os.getcwd() + "/config.json","w+") as f:
         json.dump(configTemplate,f)
 
-
-bot = commands.Bot(command_prefix='$')
+bot = commands.Bot(command_prefix='!')
 
 @bot.event
 async def on_ready():
@@ -33,11 +29,6 @@ class translator(commands.Cog):
         puncts = nltk.tokenize.wordpunct_tokenize(message)  
         return await ctx.send(puncts)
 
-    @commands.command(name='terminate')
-    async def terminate(self, ctx):
-        await ctx.send('Goodbye')
-        await bot.logout()
-
     @commands.command(name='hello')
     async def test(self,ctx):
         return await ctx.send("Hello, world!")
@@ -46,19 +37,11 @@ class translator(commands.Cog):
     async def echo(self, ctx, *, message):
         return await ctx.send(message)
    
-    @commands.command(name='translate', aliases = ['tl', 'Tl', 'tL', 'TL'])
-    async def translate(self,ctx,*,message):
-        eng =(translate.google(message))
-        return await ctx.send(eng)
+    @commands.command(aliases=['translate', 'tl', 'tr'])
+    async def translator(self, ctx, from_language, to_language, *, message):
+        translated_message = ts.google(message, str(from_language), str(to_language))
+        return await ctx.send(translated_message)
 
-    @commands.command(name = 'TranslateTTs', aliases = ['tltts'])
-    async def translateTTS(self,ctx, *, message):
-         eng =(translate.google(message))
-         return await ctx.send(eng, tts=True)
-
-    @commands.command(name = 'countryGuide', aliases = ['cg', 'cG', 'Cg'])
-    async def countryGuide(self, ctx):
-        return await ctx.send("")
 token  = configData["token"]
 def setup(bot):
     bot.add_cog(translator(bot))
